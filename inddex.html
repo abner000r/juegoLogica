@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Falacias</title>
+    <link rel="stylesheet" href="diseñoPresentador.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="game-container">
+        <!-- Escenario principal -->
+        <div class="stage" id="stage">
+            <div class="curtain-top"></div>
+            <div class="curtain curtain-left"></div>
+            <div class="curtain curtain-right"></div>
+
+            <div class="stage-background">
+                <div class="stage-lights"></div>
+            </div>
+
+            <!-- Botón para saltar intro -->
+            <button class="skip-btn" id="skipBtn">Saltar intro</button>
+
+            <!-- Escena de introducción -->
+            <div class="intro-scene" id="introScene">
+                <!-- Burbuja de texto arriba -->
+                <div class="speech-bubble-top" id="speechBubble"></div>
+
+                <!-- Imagen del presentador abajo -->
+                <div class="main-character">
+                    <img src="presentadorIntro.png" alt="Presentador del juego" class="presentador-img" />
+                </div>
+
+                <div class="speech-bubble" id="speechBubble"></div>
+            </div>
+
+            <!-- Escena de selección de modo -->
+            <div class="selection-scene" id="selectionScene">
+
+
+                <h1 class="mode-title">Escoja el modo a jugar</h1>
+
+
+                <div class="game-cards">
+                    <div class="game-card" onclick="window.location.href='juego_falacias/index.html'">
+                        <i class="fas fa-brain"></i>
+                        <h3>Cazador de Falacias</h3>
+                        <p>Responde, detecta falacias y atrapa al ladrón antes de que el premio se esfume</p>
+                    </div>
+
+                    <div class="game-card" onclick="window.location.href='juego ahorcado/ahorcado.html'">
+                        <i class="fas fa-search"></i>
+                        <h3>Ahorcado</h3>
+                        <p>Adivina las palabras en base a la pista.
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function iniciarAhorcado() {
+            alert('Iniciando modo de juego: Ahorcado');
+            window.location.href = 'ahorcado.html';
+        }
+        // Textos de la introducción
+        const introTexts = [
+            "¡Bienvenido al Juego de Falacias!",
+            "Aquí aprenderás a identificar los errores más comunes en el razonamiento.",
+            "Las falacias son argumentos que parecen válidos pero en realidad no lo son.",
+            "¿Listo para mejorar tu pensamiento crítico mientras te diviertes?"
+        ];
+
+        // Elementos del DOM
+        const stage = document.getElementById('stage');
+        const skipBtn = document.getElementById('skipBtn');
+        const introScene = document.getElementById('introScene');
+        const selectionScene = document.getElementById('selectionScene');
+        const speechBubble = document.getElementById('speechBubble');
+
+        // Variables de control
+        let currentTextIndex = 0;
+        let introFinished = false;
+        let skipRequested = false;
+
+        // Iniciar la animación cuando la página carga
+        document.addEventListener('DOMContentLoaded', startAnimation);
+
+        function startAnimation() {
+            // Abrir el telón después de un breve retraso
+            setTimeout(() => {
+                stage.classList.add('curtain-open');
+
+                // Mostrar botón de saltar después de que se abra el telón
+                setTimeout(() => {
+                    skipBtn.style.opacity = '1';
+                    showNextText();
+                }, 1500);
+            }, 500);
+        }
+
+        function showNextText() {
+            if (skipRequested || currentTextIndex >= introTexts.length) {
+                return finishIntro();
+            }
+
+            // Mostrar el texto actual
+            speechBubble.textContent = introTexts[currentTextIndex];
+            speechBubble.classList.add('show-element');
+
+            // Avanzar al siguiente texto después de un tiempo
+            setTimeout(() => {
+                speechBubble.classList.remove('show-element');
+
+                setTimeout(() => {
+                    currentTextIndex++;
+                    showNextText();
+                }, 500);
+            }, 2500);
+        }
+        function finishIntro() {
+            if (introFinished) return;
+            introFinished = true;
+
+            // Oculta intro (personaje y globo)
+            introScene.classList.add('hide-element');
+            skipBtn.style.opacity = '0';
+
+            // Espera a que se oculte para mostrar el menú
+            setTimeout(() => {
+                selectionScene.classList.add('show-element');
+            }, 500); // medio segundo de espera para que se vea natural
+        }
+
+        // Evento para el botón de saltar
+        skipBtn.addEventListener('click', () => {
+            skipRequested = true;
+            finishIntro();
+        });
+
+        // Función para iniciar el juego (simulada)
+        function startGame(mode) {
+            alert(`Iniciando modo de juego: ${mode}`);
+            // Aquí iría la redirección real:
+            // window.location.href = `${mode}.html`;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ahorcado Lógico con Estilo</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('img/calabozopixelart.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      image-rendering: pixelated;
+      margin: 0;
+      padding: 5vw;
+      text-align: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .titulo-juego {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 25px;
+      flex-wrap: nowrap;
+    }
+
+    .logo-img {
+      height: 300px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .titulo-juego h1 {
+      font-size: 3rem;
+      color: #ffffff;
+      text-shadow: 2px 2px 4px #000;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    #intro-screen {
+      max-width: 700px;
+      margin: 80px auto;
+      padding: 40px;
+      background-color: #ffffffdd;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    #intro-screen h2 {
+      font-size: 2.2em;
+      color: #2c3e50;
+    }
+
+    #intro-screen p,
+    #intro-screen h2 {
+      font-size: 1.1em;
+      color: #ffffff;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 3px #000000;
+    }
+
+    #start-game-btn {
+      padding: 14px 28px;
+      font-size: 1em;
+      background-color: #00b894;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #start-game-btn:hover {
+      background-color: #55efc4;
+    }
+
+    #toggle-audio-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 16px;
+      font-size: 0.9em;
+      background-color: #ffffff;
+      color: rgb(0, 0, 0);
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      z-index: 999;
+      transition: background 0.3s;
+    }
+
+    #toggle-audio-btn:hover {
+      background-color: #636e72;
+    }
+
+    h1,
+    h2 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      color: #f7fafd;
+      margin-bottom: 20px;
+    }
+
+    .game-container,
+    #intro-screen,
+    #final-screen {
+      width: 100%;
+      max-width: 700px;
+      margin: auto;
+      padding: 5vw;
+      background-color: transparent;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      box-sizing: border-box;
+    }
+
+    .hangman-display pre {
+      font-family: 'Courier New', monospace;
+      font-size: 1.3em;
+      margin: 25px auto;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border-radius: 12px;
+      border: 2px solid #dcdde1;
+    }
+
+    .word-display {
+      font-size: clamp(1.5rem, 5vw, 2.4rem);
+      letter-spacing: 0.35em;
+      margin: 30px 0;
+      color: #ffffff;
+      font-weight: bold;
+      text-shadow: 1px 1px 3px #000000;
+      white-space: nowrap;
+      overflow-x: auto;
+      max-width: 100%;
+      display: block;
+    }
+
+    .hint {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      margin-bottom: 20px;
+      padding: 1rem;
+      background-color: #dfe6e9;
+      border-radius: 10px;
+    }
+
+    .keyboard {
+      background-image: url('img/paredconcreto.png');
+      background-size: contain;
+      background-position: center;
+      background-repeat: repeat;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 20px;
+      border: 2px solid #444;
+      border-radius: 6px;
+      box-shadow: inset 0 0 10px #00000088;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+      gap: 10px;
+      margin: 25px 0;
+    }
+
+    .key {
+      padding: 15px;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: #2c2c2c;
+      color: #ffffff;
+      border: 2px solid #888;
+      border-radius: 0px;
+      font-weight: bold;
+      text-shadow: 1px 1px 1px #000;
+      transition: background 0.2s ease;
+      box-shadow: inset 0 0 5px #000000aa;
+    }
+
+    .key:hover {
+      background-color: #3d3d3d;
+      transform: scale(1.02);
+    }
+
+    .key.correct {
+      background-color: #55efc4 !important;
+      color: #00695c !important;
+      border-color: #2ecc71;
+    }
+
+    .key.incorrect {
+      background-color: #fab1a0 !important;
+      color: #b71c1c !important;
+      border-color: #e17055;
+    }
+
+    .controls button {
+      padding: 1rem 2rem;
+      margin: 10px;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      background-color: #0984e3;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .controls button:hover {
+      background-color: #74b9ff;
+      transform: scale(1.05);
+    }
+
+    .message {
+      font-size: clamp(1rem, 4vw, 1.6rem);
+      margin: 20px 0;
+      padding: 1rem;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    #titulo-resultado {
+      color: #000000;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .win {
+      background-color: #dff9fb;
+      color: #00b894;
+    }
+
+    .lose {
+      background-color: #ffeaa7;
+      color: #d63031;
+    }
+
+    .timer {
+      font-size: 1.2em;
+      color: #ffffff;
+      margin-bottom: 15px;
+      text-shadow: 1px 1px 3px #000000;
+    }
+
+    .hint {
+      font-size: 1.1em;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #dfe6e9;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="intro-screen">
+    <div class="titulo-juego">
+      <img src="img/florian.png" alt="Logo del juego" class="logo-img">
+      <h1>AHORCADO LÓGICO 💀</h1>
+    </div>
+    <h2> Bienvenido a este minijuego</h2>
+    <p> En este juego deberás descubrir 10 palabras ocultas relacionadas con <strong>falacias y argumentos
+        lógicos</strong>.</p>
+    <p> Cada palabra tendrá una pista. <br> Inicias con 60 segundos, pero por cada palabra fallida <strong>perderás
+        10</strong>.</p>
+    <p> Tendrás <strong>3 comodines</strong> para utilizar a lo largo de la ronda.</p>
+    <p>¿Tienes el conocimiento suficiente para obtener un puntaje perfecto? </p>
+    <button id="start-game-btn">☠️ Iniciar Juego</button>
+  </div>
+
+  <button id="toggle-audio-btn">🔇 Desactivar música</button>
+
+  <div id="titulo-juego" class="hidden">
+    <h1> </h1>
+  </div>
+
+  <!-- Audios -->
+  <audio id="bg-music" loop>
+    <source src="sonido/background.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="correct-sound">
+    <source src="sonido/correct.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="wrong-sound">
+    <source src="sonido/wrong.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="win-sound">
+    <source src="sonido/win.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="lose-sound">
+    <source src="sonido/lose.mp3" type="audio/mpeg" />
+  </audio>
+
+  <!-- Contenedor del juego -->
+  <div class="game-container hidden" id="game-container">
+    <div class="timer">⏳ Tiempo: 1:00</div>
+    <div class="hint">💡 Pista: </div>
+    <div class="hangman-display">
+      <pre id="hangman-art"></pre>
+    </div>
+    <div class="word-display" id="word-display"></div>
+    <div class="message" id="message"></div>
+    <div id="comodin-container">
+      <button id="btn-comodin" class="comodin-btn">🧩 Usar Comodín (3)</button>
+    </div>
+    <div class="keyboard" id="keyboard"></div>
+    <div class="controls">
+      <button id="next-btn" class="hidden">➡ Siguiente</button>
+    </div>
+  </div>
+  <!-- Pantalla final de resultados -->
+  <div id="final-screen" class="hidden">
+    <h2 id="titulo-resultado">Resultados de la Ronda</h2>
+    <p id="resultado-aciertos">✔ Aciertos: 0</p>
+    <p id="resultado-fallos">❌ Fallos: 0</p>
+    <p id="resultado-puntaje"> Puntaje: 0</p>
+    <button id="volver-inicio-btn">🔁 Volver a jugar</button>
+  </div>
+
+  <style>
+    #final-screen {
+      max-width: 700px;
+      margin: 80px auto;
+      padding: 40px;
+      background-color: #ffffffee;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      font-size: 1.3em;
+      color: #000000;
+    }
+
+    #final-screen p {
+      margin: 15px 0;
+      font-weight: bold;
+    }
+
+    #volver-inicio-btn {
+      padding: 14px 30px;
+      margin-top: 20px;
+      font-size: 1em;
+      background-color: #00cec9;
+      color: rgb(255, 255, 255);
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #volver-inicio-btn:hover {
+      background-color: #81ecec;
+    }
+
+    #comodin-container {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .comodin-btn {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border: 2px solid #d35400;
+      border-radius: 12px;
+      background-color: #ffeaa7;
+      color: #2d3436;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .comodin-btn:hover {
+      background-color: #fab1a0;
+    }
+
+    .comodin-btn:disabled {
+      background-color: #ccc;
+      color: #888;
+      cursor: not-allowed;
+    }
+  </style>
+  <script>
+    let comodinesDisponibles = 3;
+    let musicaActiva = true;
+
+    const audio = {
+      elements: {
+        bgMusic: document.getElementById('bg-music'),
+        correct: document.getElementById('correct-sound'),
+        wrong: document.getElementById('wrong-sound'),
+        win: document.getElementById('win-sound'),
+        lose: document.getElementById('lose-sound')
+      },
+      init() {
+        this.setVolumes();
+        this.enableAudio();
+      },
+      setVolumes() {
+        const efectosVolumen = 0.02;
+        const musicaVolumen = 0.01;
+
+        this.elements.bgMusic.volume = musicaVolumen;
+        this.elements.correct.volume = efectosVolumen;
+        this.elements.wrong.volume = efectosVolumen;
+        this.elements.win.volume = efectosVolumen;
+        this.elements.lose.volume = efectosVolumen;
+      },
+      enableAudio() {
+        document.body.addEventListener('click', () => {
+          this.elements.bgMusic.play().catch(() => { });
+        }, { once: true });
+      },
+      play(sound) {
+        try {
+          sound.currentTime = 0;
+          sound.play();
+        } catch (err) {
+          console.warn('Error al reproducir sonido', err);
+        }
+      }
+    };
+
+    const words = [
+      { word: "FALACIA", hint: "Argumento que parece válido pero no lo es" },
+      { word: "SILOGISMO", hint: "Razonamiento con dos premisas y una conclusión" },
+      { word: "SOFISMA", hint: "Argumento falso con apariencia de verdad" },
+      { word: "PREMISA", hint: "Base para un razonamiento" },
+      { word: "DEDUCCION", hint: "De lo general a lo particular" },
+      { word: "INDUCCION", hint: "De lo particular a lo general" },
+      { word: "ANALOGIA", hint: "Razonamiento por comparación" },
+      { word: "PARADOJA", hint: "Afirmación aparentemente contradictoria" },
+      { word: "EVIDENCIA", hint: "Prueba que demuestra algo" },
+      { word: "ARGUMENTO", hint: "Conjunto de premisas que llevan a una conclusión" },
+      { word: "ENGAÑO", hint: "Hacer creer algo falso intencionalmente." },
+      { word: "CONFIAR", hint: "Aceptar algo sin pedir pruebas." },
+      { word: "DUDA", hint: "Lo contrario a estar seguro." },
+      { word: "JUZGAR", hint: "Formar una opinión sobre alguien o algo." },
+      { word: "DIALOGAR", hint: "Hablar para intercambiar ideas." },
+      { word: "CLARO", hint: "Cuando algo es fácil de entender." },
+      { word: "HECHO", hint: "Algo que ocurrió realmente." },
+      { word: "MENTALIDAD", hint: "Forma en que una persona piensa." },
+      { word: "CONFUNDIR", hint: "No entender bien lo que se dijo." },
+      { word: "DEFENDER", hint: "Apoyar una idea frente a otra." },
+      { word: "RETO", hint: "Situación que pone a prueba tu mente." },
+      { word: "VALIDO", hint: "Algo que tiene lógica o fundamento." },
+      { word: "TEMA", hint: "Asunto del que se habla o discute." },
+      { word: "ERROR", hint: "Resultado de una conclusión equivocada." },
+      { word: "VERDAD", hint: "Lo opuesto a lo falso." },
+      { word: "DISCUTIR", hint: "Debatir con otra persona." },
+      { word: "SUPOSICION", hint: "Algo que se cree sin comprobar." },
+      { word: "CUESTIONAR", hint: "Preguntar o dudar de una idea." },
+      { word: "JUEGO", hint: "Actividad para aprender y divertirse." },
+      { word: "ENGAÑAR", hint: "Ocultar la verdad a propósito." }
+    ];
+
+    const hangmanStages = [
+      `+–––––+\n  |     |\n        |\n        |\n        |\n        |\n===========`,
+      `+–––––+\n  |     |\n  O     |\n        |\n        |\n        |\n===========`,
+      `+–––––+\n  |     |\n  O     |\n  |     |\n        |\n        |\n===========`,
+      `+–––––+\n  |     |\n  O     |\n /|     |\n        |\n        |\n===========`,
+      `+–––––+\n  |     |\n  O     |\n /|\\    |\n        |\n        |\n===========`,
+      `+–––––+\n  |     |\n  O     |\n /|\\    |\n /      |\n        |\n===========`,
+      `+–––––+\n  |     |\n  O     |\n /|\\    |\n / \\    |\n        |\n===========`
+    ];
+
+    let gameState = {
+      shuffledWords: [],
+      currentWordIndex: 0,
+      selectedWord: "",
+      selectedHint: "",
+      guessedLetters: [],
+      wrongGuesses: 0,
+      gameOver: false,
+      timer: null,
+      timeLeft: 60
+    };
+
+    const elements = {
+      wordDisplay: document.getElementById('word-display'),
+      hint: document.querySelector('.hint'),
+      hangman: document.getElementById('hangman-art'),
+      message: document.getElementById('message'),
+      keyboard: document.getElementById('keyboard'),
+      timer: document.querySelector('.timer'),
+      nextBtn: document.getElementById('next-btn')
+    };
+    let penalizacion = 0;
+    let palabraFuePerdida = false;
+    let totalAciertos = 0;
+    let totalFallos = 0;
+
+    function initGame(newShuffle = false) {
+      if (newShuffle || gameState.shuffledWords.length === 0) {
+        gameState.shuffledWords = shuffleArray([...words]).slice(0, 10);
+        gameState.currentWordIndex = 0;
+
+        comodinesDisponibles = 3;
+        const btn = document.getElementById('btn-comodin');
+        btn.disabled = false;
+        btn.textContent = '🧩 Usar Comodín (3)';
+      }
+
+      if (gameState.currentWordIndex >= gameState.shuffledWords.length) {
+        gameState.currentWordIndex = 0;
+        gameState.shuffledWords = shuffleArray([...words]).slice(0, 10);
+      }
+
+      const current = gameState.shuffledWords[gameState.currentWordIndex];
+      gameState.selectedWord = current.word;
+      gameState.selectedHint = current.hint;
+
+      resetGameState();
+      updateDisplay();
+      createKeyboard();
+      startTimer();
+    }
+
+    function resetGameState() {
+      gameState.guessedLetters = [];
+      gameState.wrongGuesses = 0;
+      gameState.gameOver = false;
+      gameState.timeLeft = 60 - penalizacion;
+
+      elements.hint.textContent = `💡 Pista: ${gameState.selectedHint}`;
+      elements.message.textContent = '';
+      elements.message.className = '';
+      elements.keyboard.innerHTML = '';
+      elements.hangman.textContent = hangmanStages[0];
+      elements.nextBtn.classList.add('hidden');
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function createKeyboard() {
+      'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('').forEach(letter => {
+        const btn = document.createElement('button');
+        btn.className = 'key';
+        btn.textContent = letter;
+        btn.addEventListener('click', () => handleGuess(letter));
+        elements.keyboard.appendChild(btn);
+      });
+    }
+
+    function handleGuess(letter) {
+      if (gameState.gameOver || gameState.guessedLetters.includes(letter)) return;
+      gameState.guessedLetters.push(letter);
+      const btn = Array.from(elements.keyboard.children).find(b => b.textContent === letter);
+      if (gameState.selectedWord.includes(letter)) {
+        audio.play(audio.elements.correct);
+        btn.classList.add('correct');
+        updateDisplay();
+        checkWin();
+      } else {
+        audio.play(audio.elements.wrong);
+        btn.classList.add('incorrect');
+        gameState.wrongGuesses++;
+        elements.hangman.textContent = hangmanStages[gameState.wrongGuesses];
+        checkLose();
+      }
+      btn.disabled = true;
+    }
+
+    function updateDisplay() {
+      elements.wordDisplay.textContent = gameState.selectedWord
+        .split('')
+        .map(l => gameState.guessedLetters.includes(l) ? l : '_')
+        .join(' ');
+    }
+
+    function checkWin() {
+      if (gameState.selectedWord.split('').every(l => gameState.guessedLetters.includes(l))) {
+        audio.play(audio.elements.win);
+        palabraFuePerdida = false;
+        totalAciertos++;
+        endGame('🎉 ¡Correcto!', 'win');
+      }
+    }
+
+    function checkLose() {
+      if (gameState.wrongGuesses >= hangmanStages.length - 1) {
+        audio.play(audio.elements.lose);
+        palabraFuePerdida = true;
+        totalFallos++;
+        penalizacion = Math.min(penalizacion + 10, 60);
+        updateTimer();
+
+        if (gameState.timeLeft <= 10) {
+          finalizarPorTiempo();
+        } else {
+          endGame(`💀 ¡Perdiste! Era: ${gameState.selectedWord}`, 'lose');
+        }
+      }
+    }
+
+    function endGame(msg, className) {
+      gameState.gameOver = true;
+      clearInterval(gameState.timer);
+      elements.message.textContent = msg;
+      elements.message.className = className;
+
+
+      elements.nextBtn.classList.remove('hidden');
+    }
+
+    function startTimer() {
+      updateTimer();
+      gameState.timer = setInterval(() => {
+        gameState.timeLeft--;
+        updateTimer();
+        if (gameState.timeLeft <= 0 && !gameState.gameOver) {
+          gameState.timeLeft = 0;
+          audio.play(audio.elements.lose);
+
+          palabraFuePerdida = true;
+          totalFallos++;
+          penalizacion = Math.min(penalizacion + 10, 60);
+
+          updateTimer();
+          endGame(`⌛ ¡Tiempo! Era: ${gameState.selectedWord}`, 'lose');
+        }
+      }, 1000); // cierre de setInterval
+    } // cierre de startTimer
+
+    function updateTimer() {
+      const min = Math.floor(gameState.timeLeft / 60);
+      const sec = gameState.timeLeft % 60;
+      elements.timer.textContent = `⏳ Tiempo: ${min}:${sec.toString().padStart(2, '0')}`;
+    }
+
+    elements.nextBtn.addEventListener('click', () => {
+      if (!gameState.gameOver) return;
+      gameState.currentWordIndex++;
+
+      if (gameState.currentWordIndex >= gameState.shuffledWords.length) {
+        mostrarPantallaFinal();
+      } else {
+        initGame();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!gameState.gameOver && /^[a-zñ]$/i.test(e.key)) {
+        const letter = e.key.toUpperCase();
+        const btn = Array.from(elements.keyboard.children).find(b => b.textContent === letter);
+        if (btn && !btn.disabled) btn.click();
+      }
+    });
+
+    document.getElementById('start-game-btn').addEventListener('click', () => {
+      document.getElementById('intro-screen').classList.add('hidden');
+      document.getElementById('game-container').classList.remove('hidden');
+      document.getElementById('titulo-juego').classList.add('hidden');
+
+      audio.init();
+
+      if (musicaActiva) {
+        audio.elements.bgMusic.play().catch(() => { });
+      }
+
+      initGame(true);
+    });
+
+    // Activar botón de volumen
+    document.getElementById('toggle-audio-btn').addEventListener('click', () => {
+      const music = audio.elements.bgMusic;
+      const btn = document.getElementById('toggle-audio-btn');
+
+      if (music.paused) {
+        music.play().catch(() => { });
+        musicaActiva = true;
+        btn.textContent = "🔇 Desactivar música";
+      } else {
+        music.pause();
+        musicaActiva = false;
+        btn.textContent = "🔊 Activar música";
+      }
+    });
+
+    function mostrarPantallaFinal() {
+      audio.elements.bgMusic.pause();
+      audio.elements.bgMusic.currentTime = 0;
+      document.getElementById('game-container').classList.add('hidden');
+      document.getElementById('final-screen').classList.remove('hidden');
+
+      document.getElementById('resultado-aciertos').textContent = `✔ Aciertos: ${totalAciertos}`;
+      document.getElementById('resultado-fallos').textContent = `❌ Fallos: ${totalFallos}`;
+      document.getElementById('resultado-puntaje').textContent = ` Puntaje: ${totalAciertos * 10}`;
+    }
+
+    document.getElementById('volver-inicio-btn').addEventListener('click', () => {
+      document.getElementById('final-screen').classList.add('hidden');
+      document.getElementById('intro-screen').classList.remove('hidden');
+      document.getElementById('titulo-juego').classList.remove('hidden');
+
+      totalAciertos = 0;
+      totalFallos = 0;
+      penalizacion = 0;
+
+
+      const toggleBtn = document.getElementById('toggle-audio-btn');
+      toggleBtn.textContent = musicaActiva ? "🔇 Desactivar música" : "🔊 Activar música";
+    });
+
+
+    function finalizarPorTiempo() {
+      const restantes = gameState.shuffledWords.length - (gameState.currentWordIndex + 1);
+      totalFallos += restantes;
+
+      // Detener música
+      audio.elements.bgMusic.pause();
+      audio.elements.bgMusic.currentTime = 0;
+
+      // Mostrar pantalla final
+      document.getElementById('game-container').classList.add('hidden');
+      document.getElementById('final-screen').classList.remove('hidden');
+
+      document.getElementById('resultado-aciertos').textContent = `✔ Aciertos: ${totalAciertos}`;
+      document.getElementById('resultado-fallos').textContent = `❌ Fallos: ${totalFallos}`;
+      document.getElementById('resultado-puntaje').textContent = `Puntaje: ${totalAciertos * 10}`;
+
+      // Evitar seguir avanzando
+      gameState.currentWordIndex = gameState.shuffledWords.length;
+    }
+    document.getElementById('btn-comodin').addEventListener('click', () => {
+      if (gameState.gameOver || comodinesDisponibles <= 0) return;
+
+      const palabra = gameState.selectedWord;
+      const sinAdivinar = palabra.split('').filter(l => !gameState.guessedLetters.includes(l));
+
+      if (sinAdivinar.length === 0) return;
+
+      let letrasARevelar = 1;
+      if (palabra.length >= 7) {
+        letrasARevelar = 3;
+      } else if (palabra.length >= 5) {
+        letrasARevelar = 2;
+      }
+
+      const letrasMostradas = [];
+      while (letrasMostradas.length < letrasARevelar && sinAdivinar.length > 0) {
+        const index = Math.floor(Math.random() * sinAdivinar.length);
+        const letra = sinAdivinar.splice(index, 1)[0];
+        letrasMostradas.push(letra);
+        handleGuess(letra);
+      }
+
+      comodinesDisponibles--;
+      const btn = document.getElementById('btn-comodin');
+      btn.textContent = `🧩 Usar Comodín (${comodinesDisponibles})`;
+
+      if (comodinesDisponibles === 0) btn.disabled = true;
+    });
+
+  </script>
+</body>
+
+</html>

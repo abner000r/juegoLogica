@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  background-color: #111; /* Fondo oscuro tipo teatro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+canvas {
+  image-rendering: pixelated; /* Mantiene el pixel art nítido */
+  border: 4px solid #ff0080; /* Borde tipo neón retro */
+  box-shadow: 0 0 25px #ff008088;
+}
